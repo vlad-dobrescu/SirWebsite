@@ -1,0 +1,44 @@
+.drag-and-drop {
+  border: 2px dashed #ccc;
+  border-radius: 10px;
+  padding: 20px;
+  text-align: center;
+  cursor: pointer;
+  color: #999;
+  font-size: 18px;
+  margin-bottom: 20px;
+}
+.drag-and-drop.dragover {
+  border-color: #333;
+  color: #333;
+}
+.file-list {
+  margin-top: 10px;
+  font-size: 16px;
+  color: #333;
+}
+.file-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.file-item img {
+  max-width: 100px;
+  margin-right: 10px;
+}
+.file-item button {
+  margin-left: auto;
+  background-color: #f44336;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  padding: 5px 10px;
+}
+.file-item button:hover {
+  background-color: #d32f2f;
+}
+.form-container {
+  display: none;
+  margin-top: 20px;
+}

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('../partials/head'); %>
+  <link rel="stylesheet" type="text/css" href="/css/admin.css">
+</head>
+<body class="container">
+  <header>
+    <%- include('../partials/header'); %>
+  </header>
+  
+  <div>
+    <button onclick="showForm('create-form')" class="btn btn-primary">Create Product</button>
+    <button onclick="showForm('update-form')" class="btn btn-primary">Update Product</button>
+    <button onclick="showForm('delete-form')" class="btn btn-primary">Delete Product</button>
+  </div>
+
+  <!-- Create Product Form -->
+  <div id="create-form" class="form-container">
+    <form action="/admin/create" method="post" enctype="multipart/form-data">
+      <div class="form-group">
+        <input type="text" name="nume" placeholder="Nume" class="form-control">
+        <input type="number" name="pret" placeholder="Pret" class="form-control">
+        <div id="drag-and-drop-create" class="drag-and-drop">
+          Drag & drop images here or click to select files
+        </div>
+        <input type="file" id="fileInputCreate" name="imagine" multiple class="form-control" style="display:none;">
+        <div id="fileListCreate" class="file-list"></div>
+        <input type="text" name="descriere" placeholder="Descriere" class="form-control">
+        <input type="text" name="categorie" placeholder="Categorie" class="form-control">
+        <button type="submit" class="btn btn-primary">Adauga</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Update Product Form -->
+  <div id="update-form" class="form-container">
+    <form action="/admin/update" method="post" enctype="multipart/form-data">
+      <div class="form-group">
+        <input type="text" name="id" placeholder="ID" class="form-control">
+        <input type="text" name="nume" placeholder="Nume" class="form-control">
+        <input type="number" name="pret" placeholder="Pret" class="form-control">
+        <div id="drag-and-drop-update" class="drag-and-drop">
+          Drag & drop images here or click to select files
+        </div>
+        <input type="file" id="fileInputUpdate" name="imagine" multiple class="form-control" style="display:none;">
+        <div id="fileListUpdate" class="file-list"></div>
+        <input type="text" name="descriere" placeholder="Descriere" class="form-control">
+        <input type="text" name="categorie" placeholder="Categorie" class="form-control">
+        <button type="submit" class="btn btn-primary">Update</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Delete Product Form -->
+  <div id="delete-form" class="form-container">
+    <form action="/admin/delete" method="post">
+      <div class="form-group">
+        <input type="text" name="id" placeholder="ID" class="form-control">
+        <button type="submit" class="btn btn-primary">Delete</button>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    function showForm(formId) {
+      document.getElementById('create-form').style.display = 'none';
+      document.getElementById('update-form').style.display = 'none';
+      document.getElementById('delete-form').style.display = 'none';
+      document.getElementById(formId).style.display = 'block';
+    }
+  </script>
+  <script src="/js/drag-drop.js"></script>
+</body>
+<footer>
+  <%- include('../partials/footer'); %>
+</footer>
+</html>

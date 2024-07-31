@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('../partials/head'); %>
+</head>
+<body class="container">
+
+<header>
+  <%- include('../partials/header'); %>
+</header>
+
+<main>
+  <div class="jumbotron">
+    <h1>This is great</h1>
+    <p>SALUT</p>
+    <div>
+      <h1>Produs</h1>
+      <% productData.forEach((product) => { %>
+        <div>
+          <h2><%= product.nume %></h2>
+          <p><%= product.pret %></p>
+          <p><%= product.desciere %></p>
+          <p><%= product.categorie %></p>
+          <p><%= product.id %></p>
+          <% product.poze.forEach((poza) => { %>
+            <img src="<%= poza %>" alt="poza">
+          <% }) %>
+        </div>
+      <% }) %>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <%- include('../partials/footer'); %>
+</footer>
+
+</body>
+</html>
