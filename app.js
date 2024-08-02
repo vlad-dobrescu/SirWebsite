@@ -12,7 +12,6 @@ const sendEmail = require('./server/emailVerification');
 const uploadToGcs = require('./server/uploadToGcs');
 const cookieParser = require('cookie-parser');
 
-const csrfMiddleware = csrf({cookie: true});
 const app = express();
 
 dotenv.config();
@@ -29,7 +28,6 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static('static'));
 app.use(bodyParser.json());
 app.use(cookieParser());
-app.use(csrfMiddleware);
 app.set('view engine', 'ejs');
 
 mongoose.connect(mongoURL).then(() => { // Connect to MongoDB
@@ -38,10 +36,6 @@ mongoose.connect(mongoURL).then(() => { // Connect to MongoDB
   console.log('Error connecting to MongoDB', error);
 });
 
-app.all("*", (req, res, next) => {
-  res.cookie("XSRF-TOKEN", req.csrfToken());
-  next();
-});
 
 app.get('/', async (req, res) => {
   try {
