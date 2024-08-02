@@ -13,6 +13,12 @@
   <div class="jumbotron">
     <h1>This is great</h1>
     <p>SALUT</p>
+    <% if (isLoggedIn) { %>
+      <p>Welcome, <%= email %>! You are logged in.</p>
+      <a href="/sessionLogout">Logout</a>
+    <% } else { %>
+      <p>You are not logged in. Please <a href="/autentificare">login</a>.</p>
+    <% } %>
     <div>
       <h1>Produs</h1>
       <% productData.forEach((product) => { %>

@@ -3,12 +3,16 @@ const dotenv = require('dotenv');
 const mongoose = require('mongoose');
 const multer = require('multer');
 const ejs = require('ejs');
+const csrf = require('csurf');
+const bodyParser = require('body-parser');
 
 const Product = require('./server/product.model');
 const admin = require('./server/firebase');
 const sendEmail = require('./server/emailVerification');
 const uploadToGcs = require('./server/uploadToGcs');
+const cookieParser = require('cookie-parser');
 
+const csrfMiddleware = csrf({cookie: true});
 const app = express();
 
 dotenv.config();
@@ -23,6 +27,9 @@ const upload = multer({ storage: storage });
 app.use(express.json());
 app.use(express.urlencoded({ extended: true })); 
 app.use(express.static('static'));
+app.use(bodyParser.json());
+app.use(cookieParser());
+app.use(csrfMiddleware);
 app.set('view engine', 'ejs');
 
 mongoose.connect(mongoURL).then(() => { // Connect to MongoDB
@@ -31,25 +38,42 @@ mongoose.connect(mongoURL).then(() => { // Connect to MongoDB
   console.log('Error connecting to MongoDB', error);
 });
 
+app.all("*", (req, res, next) => {
+  res.cookie("XSRF-TOKEN", req.csrfToken());
+  next();
+});
+
 app.get('/', async (req, res) => {
   try {
     const productData = await Product.find();
-    console.log('productData:', productData);
-    res.render('pages/index', { productData });
+    const sessionCookie = req.cookies.session || "";
+
+    admin
+      .auth()
+      .verifySessionCookie(sessionCookie, true /** checkRevoked */)
+      .then((userData) => {
+        console.log("Logged in:", userData.email);
+        res.render('pages/index', { productData, isLoggedIn: true, email: userData.email });
+      })
+      .catch((error) => {
+        console.log('Not logged in or error verifying session:', error);
+        res.render('pages/index', { productData, isLoggedIn: false });
+      });
   } catch (error) {
     console.log('Error getting products', error);
     res.status(500).send('Error getting products');
   }
-  
 });
+
 
 app.get('/admin', (req, res) => {
   res.render('pages/admin');
 });
 
-app.get('/signup', (req, res) => {
-  res.render('pages/signup');
+app.get('/autentificare', (req, res) => {
+  res.render('pages/autentificare');
 });
+
 
 app.get('/produse', async (req, res) => {
   try {
@@ -61,28 +85,44 @@ app.get('/produse', async (req, res) => {
   }
 });
 
-/* CREATE EMAIL ACCOUNT AND SEND VERIFICATION LINK */
-app.post('/signup', async (req, res) => {
-  const { email, password } = req.body;
-  console.log(req.body);
+app.get("/contul-meu", function (req, res) {
+  const sessionCookie = req.cookies.session || "";
 
-  try {
-    
-    const user = await admin.auth().createUser({
-      email,
-      password,
+  admin
+    .auth()
+    .verifySessionCookie(sessionCookie, true /** checkRevoked */)
+    .then((userData) => {
+      console.log("Logged in:", userData.email)
+      res.render('pages/contul-meu');
+    })
+    .catch((error) => {
+      res.redirect("/autentificare");
     });
-    
-    const verificationLink = await admin.auth().generateEmailVerificationLink(email);
-    console.log(verificationLink);
+});
 
-    await sendEmail(email, 'Verificați-vă e-mailul', `Apăsați pe link pentru a verifica e-mailul: ${verificationLink}`); 
+app.post("/sessionLogin", (req, res) => {
+  const idToken = req.body.idToken.toString();
 
-    res.redirect('/');
-  } catch (error) {
-    console.log("Error in creating new firebase email user", error);
-    res.status(500).send("Error creating user");
-  }
+  const expiresIn = 60 * 60 * 24 * 5 * 1000;
+
+  admin
+    .auth()
+    .createSessionCookie(idToken, { expiresIn })
+    .then(
+      (sessionCookie) => {
+        const options = { maxAge: expiresIn, httpOnly: true };
+        res.cookie("session", sessionCookie, options);
+        res.end(JSON.stringify({ status: "success" }));
+      },
+      (error) => {
+        res.status(401).send("UNAUTHORIZED REQUEST!");
+      }
+    );
+});
+
+app.get("/sessionLogout", (req, res) => {
+  res.clearCookie("session");
+  res.redirect("/autentificare");
 });
 
 
