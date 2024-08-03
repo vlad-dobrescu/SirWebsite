@@ -17,18 +17,46 @@
 
   <!-- Create Product Form -->
   <div id="create-form" class="form-container">
-    <form action="/admin/create" method="post" enctype="multipart/form-data">
+    <form  action="/admin/create" method="post" enctype="multipart/form-data">
       <div class="form-group">
-        <input type="text" name="nume" placeholder="Nume" class="form-control">
-        <input type="number" name="pret" placeholder="Pret" class="form-control">
-        <div id="drag-and-drop-create" class="drag-and-drop">
+        <input type="text" name="nume" placeholder="Nume" class="form-control" required>
+        <input type="number" name="pret" placeholder="Pret" class="form-control" required>
+        <input type="text" name="descriere" placeholder="Descriere" class="form-control" required>
+        <input type="text" name="categorie" placeholder="Categorie" class="form-control" required>
+        
+        <!-- Hidden input to store variatii JSON -->
+        <input type="hidden" name="variatii" id="variatiiInput">
+
+        <!-- Color Dropdown -->
+        <select id="colorDropdown" class="form-control">
+          <option value="">Select Color</option>
+          <option value="Red">Red</option>
+          <option value="Blue">Blue</option>
+          <option value="Green">Green</option>
+          <!-- Add more colors as needed -->
+        </select>
+
+        <!-- Size Dropdown (hidden initially) -->
+        <select id="sizeDropdown" class="form-control" style="display:none;">
+          <option value="">Select Size</option>
+          <option value="S">S</option>
+          <option value="M">M</option>
+          <option value="L">L</option>
+          <!-- Add more sizes as needed -->
+        </select>
+
+        <!-- Quantity Input (hidden initially) -->
+        <input type="number" id="quantityInput" name="quantity" placeholder="Quantity" class="form-control" style="display:none;">
+        
+        <!-- Drag and Drop Field (hidden initially) -->
+        <div id="drag-and-drop-create" class="drag-and-drop" style="display:none;">
           Drag & drop images here or click to select files
         </div>
+        <button type="button" id="addVariation"  style="display:none;">Add Variation</button>
         <input type="file" id="fileInputCreate" name="imagine" multiple class="form-control" style="display:none;">
         <div id="fileListCreate" class="file-list"></div>
-        <input type="text" name="descriere" placeholder="Descriere" class="form-control">
-        <input type="text" name="categorie" placeholder="Categorie" class="form-control">
-        <button type="submit" class="btn btn-primary">Adauga</button>
+        
+        <button type="submit" class="btn btn-primary">Adaugă</button>
       </div>
     </form>
   </div>
@@ -62,15 +90,7 @@
     </form>
   </div>
 
-  <script>
-    
-    function showForm(formId) {
-      document.getElementById('create-form').style.display = 'none';
-      document.getElementById('update-form').style.display = 'none';
-      document.getElementById('delete-form').style.display = 'none';
-      document.getElementById(formId).style.display = 'block';
-    }
-  </script>
+
   <script src="/js/drag-drop.js"></script>
 </body>
 <footer>

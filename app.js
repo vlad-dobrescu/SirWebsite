@@ -129,39 +129,48 @@ app.get("/sessionLogout", (req, res) => {
 //create
 app.post('/admin/create', upload.array('imagine'), async (req, res) => {
   try {
-    // console.log('req.body:', req.body);
-    // console.log('req.files:', req.files);
-
-    if (!req.files || req.files.length === 0) {
-      return res.status(400).send('No files were uploaded.');
-    }
-
-    const { nume, pret, descriere, categorie } = req.body;
+    const { nume, pret, descriere, categorie, variatii } = req.body;
     const files = req.files;
 
-    // Upload files to GCS and get their URLs
-    const imageUrls = await Promise.all(files.map(file => uploadToGcs(file)));
+    //delete the first element of the array no shift
 
-    console.log('imageUrls:', imageUrls);
-    // Create a new product
-    const newProduct = new Product({
-      nume: nume,
-      pret: pret,
-      descriere: descriere,
-      categorie: categorie,
-      poze: imageUrls,
+    variatii.splice(0, 1);
+
+    console.log('Variatii:', variatii);
+    // Parse the variations JSON
+    const parsedVariations = JSON.parse(variatii);
+    console.log('Parsed Variations:', parsedVariations);
+
+    // Create a mapping from file field names to their URLs
+    const fileMap = {};
+    for (const file of files) {
+      const url = await uploadToGcs(file);
+      fileMap[file.originalname] = url;
+    }
+
+    // Populate variations with uploaded images
+    parsedVariations.forEach(variation => {
+      variation.marimi.forEach(size => {
+        size.imagini = size.imagini.map(imageName => fileMap[imageName]);
+      });
     });
 
-    // console.log('newProduct:', newProduct);
-    // Save the product to MongoDB
-    await newProduct.save();
+    const newProduct = new Product({
+      nume,
+      pret,
+      descriere,
+      categorie,
+      variatii: parsedVariations,
+    });
 
+    await newProduct.save();
     res.status(201).send('Product added successfully');
   } catch (err) {
     console.error('Error creating product:', err);
     res.status(500).send('Server Error');
   }
 });
+
 //update
 app.post('/admin/update', upload.array('imagine'), async (req, res) => {
   const id = req.body.id;
