@@ -5,12 +5,16 @@ const multer = require('multer');
 const ejs = require('ejs');
 const csrf = require('csurf');
 const bodyParser = require('body-parser');
+const crypto = require('crypto');
+const session = require('express-session');
 
+const Cart = require('./server/cart.model');  
 const Product = require('./server/product.model');
 const admin = require('./server/firebase');
 const sendEmail = require('./server/emailVerification');
 const uploadToGcs = require('./server/uploadToGcs');
 const cookieParser = require('cookie-parser');
+const secret = crypto.randomBytes(64).toString('hex');
 
 const app = express();
 
@@ -59,7 +63,6 @@ app.get('/', async (req, res) => {
   }
 });
 
-
 app.get('/admin', (req, res) => {
   res.render('pages/admin');
 });
@@ -67,6 +70,28 @@ app.get('/admin', (req, res) => {
 app.get('/autentificare', (req, res) => {
   res.render('pages/autentificare');
 });
+
+app.get('/cart', async (req, res) => {
+  try {
+    const sessionId = req.cookies.session;
+    const cartData = await Cart.find({ sessionId });
+
+    const productIds = cartData.map(item => item.productId);
+    const products = await Product.find({ _id: { $in: productIds } });
+
+    // Create a map for quick lookup of products by ID
+    const productMap = {};
+    products.forEach(product => {
+      productMap[product._id] = product;
+    });
+
+    res.render('pages/cart', { cartData, productMap });
+  } catch (error) {
+    console.log('Error getting cart', error);
+    res.status(500).send('Error getting cart');
+  }
+});
+
 
 
 app.get('/produse', async (req, res) => {
@@ -93,6 +118,57 @@ app.get("/contul-meu", function (req, res) {
       res.redirect("/autentificare");
     });
 });
+
+app.post('/cart/add', async (req, res) => {
+  const { productId, color, size, quantity } = req.body;
+  const sessionId = req.cookies.session;
+
+  console.log("session id", sessionId);
+  console.log(req.body);
+
+  try {
+    // Find the product and check if the requested quantity is available
+    const product = await Product.findById(productId);
+    if (!product) {
+      return res.status(404).json({ error: 'Product not found' });
+    }
+
+    const variation = product.variatii.find(v => v.culoare === color);
+    if (!variation) {
+      return res.status(404).json({ error: 'Color not found' });
+    }
+
+    const sizeInfo = variation.marimi.find(m => m.marime === size);
+    if (!sizeInfo) {
+      return res.status(404).json({ error: 'Size not found' });
+    }
+
+    const availableQuantity = sizeInfo.cantitate;
+    if (availableQuantity < quantity) {
+      return res.status(400).json({ error: 'Requested quantity not available' });
+    }
+
+    const findCart = await Cart.findOne({ sessionId, productId, color, size });
+    if (findCart) {
+      let q = parseInt(findCart.quantity) + parseInt(quantity);
+      if (q > availableQuantity) {
+        return res.status(400).json({ error: 'Requested quantity exceeds available stock' });
+      }
+      findCart.quantity = q;
+      await findCart.save();
+      res.json(findCart);
+    } else {
+      const newCart = new Cart({ sessionId, productId, color, size, quantity });
+      await newCart.save();
+      res.json(newCart);
+    }
+  } catch (error) {
+    console.log('Error adding product to cart', error);
+    res.status(500).send('Error adding product to cart');
+  }
+});
+
+
 
 app.post("/sessionLogin", (req, res) => {
   const idToken = req.body.idToken.toString();

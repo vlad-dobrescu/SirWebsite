@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('../partials/head'); %>
+</head>
+<body class="container">
+
+<header>
+  <%- include('../partials/header'); %>
+</header>
+
+<main>
+  <h1>MY CART</h1>
+  <div>
+    <% cartData.forEach(item => { %>
+      <% const product = productMap[item.productId]; %>
+      <div>
+        <h3><%= product.nume %></h3>
+        <p>Price: <%= product.pret %></p>
+        <p>Color: <%= item.color %></p>
+        <p>Size: <%= item.size %></p>
+        <p>Quantity: <%= item.quantity %></p>
+        
+        <% product.variatii.forEach(variation => { %>
+          <% if (variation.culoare === item.color) { %>
+            <% variation.marimi.forEach(size => { %>
+              <% if (size.marime === item.size) { %>
+                <% size.imagini.forEach(image => { %>
+                  <img src="<%= image %>" alt="<%= product.nume %>">
+                <% }) %>
+              <% } %>
+            <% }) %>
+          <% } %>
+        <% }) %>
+      </div>
+    <% }) %>
+  </div>
+</main>
+
+</body>
+
+<footer>
+  <%- include('../partials/footer'); %>
+</footer>
+
+</html>

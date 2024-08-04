@@ -22,24 +22,86 @@
     <div>
       <h1>Produs</h1>
       <% productData.forEach((product) => { %>
-        <div>
-          <h2><%= product.nume %></h2>
-          <p><%= product.pret %></p>
-          <p><%= product.desciere %></p>
-          <p><%= product.categorie %></p>
-          <p><%= product.id %></p>
-          <% product.poze.forEach((poza) => { %>
-            <img src="<%= poza %>" alt="poza">
+        <div class="product" data-product-id="<%= product._id %>">
+          <h2><%= product.nume %> NUME</h2>
+          <p><%= product.pret %> PRET</p>
+          <p><%= product.descriere %> DESCRIERE</p>
+          <p><%= product.categorie %> CATEGORIE</p>
+          <p><%= product._id %> ID</p>
+          
+          <label for="color-<%= product._id %>">Choose Color:</label>
+          <select id="color-<%= product._id %>" class="color-select" data-product-id="<%= product._id %>">
+            <option value="">Select Color</option>
+            <% product.variatii.forEach((obj) => { %>
+              <option value="<%= obj.culoare %>"><%= obj.culoare %></option>
+            <% }) %>
+          </select>
+
+          <label for="size-<%= product._id %>">Choose Size:</label>
+          <select id="size-<%= product._id %>" class="size-select">
+            <option value="">Select Size</option>
+          </select>
+
+          <label for="quantity-<%= product._id %>">Quantity:</label>
+          <input type="number" id="quantity-<%= product._id %>" class="quantity-input" min="1" value="1">
+          
+          <% product.variatii.forEach((obj) => { %>
+              <p><%= obj.culoare %> CULOARE</p>
+              <% obj.marimi.forEach((i) => { %>
+                  <p><%= i.marime %> <%= i.cantitate %>   MARIME/ CANTITATE</p>
+                  
+                  <% i.imagini.forEach((img) => { %>
+                    <img src="<%= img %>" alt="product image">  
+                  <% }) %>
+              <% }) %>
           <% }) %>
+          <button class="add-to-cart">Add to Cart</button>
         </div>
       <% }) %>
     </div>
   </div>
 </main>
+<script src="js/add-to-cart.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+  // Function to update sizes based on selected color
+  function updateSizes(productId, color) {
+    const productElement = document.querySelector(`.product[data-product-id="${productId}"]`);
+    const sizeSelect = productElement.querySelector('.size-select');
+    const productData = <%- JSON.stringify(productData) %>;
+
+    const product = productData.find(p => p._id === productId);
+    const variation = product.variatii.find(v => v.culoare === color);
+
+    // Clear the current size options
+    sizeSelect.innerHTML = '<option value="">Select Size</option>';
+
+    // Add new size options based on the selected color
+    if (variation) {
+      variation.marimi.forEach(size => {
+        const option = document.createElement('option');
+        option.value = size.marime;
+        option.textContent = size.marime;
+        sizeSelect.appendChild(option);
+      });
+    }
+  }
+
+  // Add event listener to color selects to update sizes when a color is selected
+  document.querySelectorAll('.color-select').forEach(select => {
+    select.addEventListener('change', function() {
+      const productId = this.getAttribute('data-product-id');
+      const color = this.value;
+      updateSizes(productId, color);
+    });
+  });
+
+});
+</script>
+</body>
 
 <footer>
   <%- include('../partials/footer'); %>
 </footer>
 
-</body>
 </html>
