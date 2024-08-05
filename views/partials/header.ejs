@@ -1,9 +1,20 @@
 <nav class="navbar navbar-expand-lg bg-body-tertiary">
   <div class="container-fluid">
     <a class="navbar-brand" href="/">Home</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
+    <div class="d-flex">
+      <button class="mobile-search-button mobile-only" onclick="toggleSearch()">
+        <img id="search-img" src="/img/search.png" alt="Search">
+      </button>
+      <button class="mobile-account-button mobile-only" onclick="toggleAccount()">
+        <img id="account-img" src="/img/user.png" alt="Account">
+      </button>
+      <button class="mobile-cart-button mobile-only" onclick="toggleCart()">
+        <img id="cart-img" src="/img/cart.png" alt="Cart">
+      </button>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+    </div>
     <div class="collapse navbar-collapse" id="navbarNavDropdown">
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
         <li class="nav-item">
@@ -29,10 +40,89 @@
           </ul>
         </li>
       </ul>
-      <form class="d-flex ms-auto" role="search" id="search-form">
-        <input class="form-control me-2 search-input" type="search" placeholder="Search" aria-label="Search">
-        <button class="search-btn" class="btn btn-outline-success" type="submit"><i class="fa fa-search"></i></button>
-      </form>
+      <div class="search-container desktop-only" id="desktopSearchContainer">
+        <button class="cancel-button" style="display: none;" id="cancel-button">
+          <img id="cancel-img" src="/img/cancel.png" alt="Cancel">
+        </button>
+        <input type="text" placeholder="Search..." class="search-input">
+        <button class="search-button">
+          <img id="search-img" src="/img/search.png" alt="Search">
+        </button>
+      </div>
+      <div class="account-container desktop-only">
+        <button class="account-button">
+          <img id="account-img" src="/img/user.png" alt="Account">
+        </button>
+        <% if (!isLoggedIn) { %>
+        <div class="login-modal" id="loginModal">
+          <form id="signIN-form">
+            <div>
+              <label for="username">Email:</label>
+              <input type="text" id="username" name="login">
+            </div>
+            <div>
+              <label for="password">Password:</label>
+              <input type="password" id="password" name="password" >
+            </div>
+            <div>
+              <button type="submit">Login</button>
+            </div>
+            <div>
+              <p>Don't have an account? <a href="/autentificare">Sign up</a></p>
+            </div>
+          </form>
+          <% } else { %>
+          <div class="account-modal" id="account-modal">
+            <p>Welcome, <%= email %>! You are logged in.</p>
+            <a href="/sessionLogout">Logout</a>
+          </div>
+          <% } %>
+        </div>
+      </div>
+      <div class="cart-container desktop-only">
+        <button class="cart-button">
+          <img id="cart-img" src="/img/cart.png" alt="Cart">
+        </button>
+      </div>
     </div>
   </div>
 </nav>
+
+<div class="mobile-search-container mobile-only" id="mobileSearchContainer">
+  <input type="text" placeholder="Search..." class="mobile-search-input">
+  <button class="mobile-search-close-button" onclick="toggleSearch()">Close</button>
+</div>
+
+<div class="mobile-account-container mobile-only" id="mobileAccountContainer">
+  <% if (!isLoggedIn) { %>
+  <form id="signIN-form">
+    <div>
+      <label for="mobile-username">Email:</label>
+      <input type="text" id="mobile-username" name="login">
+    </div>
+    <div>
+      <label for="mobile-password">Password:</label>
+      <input type="password" id="mobile-password" name="password">
+    </div>
+    <div>
+      <button type="submit">Login</button>
+    </div>
+    <div>
+      <p>Don't have an account? <a href="/autentificare">Sign up</a></p>
+    </div>
+  </form>
+  <% } else { %>
+    <div class="account-modal-mobile" id="account-modal-mobile">
+      <p>Welcome, <%= email %>! You are logged in.</p>
+      <a href="/sessionLogout">Logout</a>
+    </div>
+    <% } %>
+</div>
+
+<div class="mobile-cart-container mobile-only" id="mobileCartContainer">
+  <p>Your cart is empty.</p>
+  <button class="mobile-cart-close-button" onclick="toggleCart()">Close</button>
+</div>
+
+<script src="/js/nav.js"></script>
+<script type="module" src="js/signin.js"></script>

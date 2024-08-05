@@ -42,7 +42,7 @@ window.addEventListener("DOMContentLoaded", () => {
             return auth.signOut();
           })
           .then(() => {
-            window.location.assign("/contul-meu");
+            window.location.assign("/");
           })
           .catch((error) => {
             console.error("Error during login:", error);

@@ -192,7 +192,7 @@ app.post("/sessionLogin", (req, res) => {
 
 app.get("/sessionLogout", (req, res) => {
   res.clearCookie("session");
-  res.redirect("/autentificare");
+  res.redirect("/");
 });
 
 

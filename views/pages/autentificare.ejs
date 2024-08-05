@@ -13,13 +13,10 @@
     <script type="module" src="js/signup.js"></script>
     <script type="module" src="js/signin.js"></script>
     <script type="module" src="js/google.js"></script>
-    <div>
-      <button onclick="showForm('signUP-form')">Crează Cont</button>
-      <button onclick="showForm('signIN-form')">Ai Cont</button>
-    </div>
+ 
 
     <!-- SIGN UP FORM -->
-    <form id="signUP-form" style="display: none;">
+    <form id="signUP-form" >
       <h2>CREAZA CONT</h2>
       <div class="form-group">
         <label for="exampleInputEmail1">Adresa de mail</label>
@@ -37,30 +34,8 @@
       <button type="submit" class="btn btn-primary">Submit</button>
     </form>
 
-    <!-- SIGN IN FORM -->
-    <form id="signIN-form" style="display: none;">
-      <h2>Login</h2>
-      <div class="form-group">
-        <label for="exampleInputEmail1">Email address</label>
-        <input type="email" name="login" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email">
-        <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone else.</small>
-      </div>
-      <div class="form-group">
-        <label for="exampleInputPassword1">Password</label>
-        <input type="password" name="password" class="form-control" id="exampleInputPassword1" placeholder="Password">
-      </div>
-      <button type="submit" class="btn btn-primary">Submit</button>
-    </form>
 
     <button id="google-sign-in">Sign in with Google</button>
-
-    <script>
-      function showForm(formID) {
-        document.getElementById('signUP-form').style.display = 'none';
-        document.getElementById('signIN-form').style.display = 'none';
-        document.getElementById(formID).style.display = 'block';
-      }
-    </script>
   </body>
   <footer>
     <%- include('../partials/footer'); %>
