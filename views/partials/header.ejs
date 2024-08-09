@@ -55,7 +55,7 @@
         </button>
         <% if (!isLoggedIn) { %>
         <div class="login-modal" id="loginModal">
-          <form id="signIN-form">
+          <form id="signIN-form-desktop">
             <div>
               <label for="username">Email:</label>
               <input type="text" id="username" name="login">
@@ -95,7 +95,7 @@
 
 <div class="mobile-account-container mobile-only" id="mobileAccountContainer">
   <% if (!isLoggedIn) { %>
-  <form id="signIN-form">
+  <form id="signIN-form-mobile">
     <div>
       <label for="mobile-username">Email:</label>
       <input type="text" id="mobile-username" name="login">

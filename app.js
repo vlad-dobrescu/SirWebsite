@@ -15,6 +15,22 @@ const sendEmail = require('./server/emailVerification');
 const uploadToGcs = require('./server/uploadToGcs');
 const cookieParser = require('cookie-parser');
 const secret = crypto.randomBytes(64).toString('hex');
+const checkAdmin = require('./server/protect-admin');
+
+const checkAuth = (req, res, next) => {
+  const sessionCookie = req.cookies.session || "";
+  admin.auth().verifySessionCookie(sessionCookie, true)
+    .then((userData) => {
+      req.isLoggedIn = true;
+      req.email = userData.email;
+      next();
+    })
+    .catch(() => {
+      req.isLoggedIn = false;
+      next();
+    });
+};
+
 
 const app = express();
 
@@ -40,7 +56,6 @@ mongoose.connect(mongoURL).then(() => { // Connect to MongoDB
   console.log('Error connecting to MongoDB', error);
 });
 
-
 app.get('/', async (req, res) => {
   try {
     const productData = await Product.find();
@@ -63,15 +78,19 @@ app.get('/', async (req, res) => {
   }
 });
 
-app.get('/admin', (req, res) => {
-  res.render('pages/admin');
+
+app.get('/admin', checkAdmin , (req, res) => {
+  res.render('pages/admin', { isLoggedIn: req.isLoggedIn, email: req.email });
 });
 
-app.get('/autentificare', (req, res) => {
-  res.render('pages/autentificare');
+app.get('/autentificare', checkAuth, (req, res) => {
+  if (req.isLoggedIn) {
+    return res.redirect('/contul-meu');
+  }
+  else res.render('pages/autentificare', { isLoggedIn: req.isLoggedIn, email: req.email });
 });
 
-app.get('/cart', async (req, res) => {
+app.get('/cart', checkAuth, async (req, res) => {
   try {
     const sessionId = req.cookies.session;
     const cartData = await Cart.find({ sessionId });
@@ -85,14 +104,12 @@ app.get('/cart', async (req, res) => {
       productMap[product._id] = product;
     });
 
-    res.render('pages/cart', { cartData, productMap });
+    res.render('pages/cart', { cartData, productMap, isLoggedIn: req.isLoggedIn, email: req.email });
   } catch (error) {
     console.log('Error getting cart', error);
     res.status(500).send('Error getting cart');
   }
 });
-
-
 
 app.get('/produse', async (req, res) => {
   try {
@@ -104,19 +121,12 @@ app.get('/produse', async (req, res) => {
   }
 });
 
-app.get("/contul-meu", function (req, res) {
-  const sessionCookie = req.cookies.session || "";
-
-  admin
-    .auth()
-    .verifySessionCookie(sessionCookie, true /** checkRevoked */)
-    .then((userData) => {
-      console.log("Logged in:", userData.email)
-      res.render('pages/contul-meu');
-    })
-    .catch((error) => {
-      res.redirect("/autentificare");
-    });
+app.get("/contul-meu", checkAuth, (req, res) => {
+  if (req.isLoggedIn) {
+    res.render('pages/contul-meu', { isLoggedIn: req.isLoggedIn, email: req.email });
+  } else {
+    res.redirect("/autentificare");
+  }
 });
 
 app.post('/cart/add', async (req, res) => {
